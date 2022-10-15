@@ -1,18 +1,22 @@
 #[macro_use]
 extern crate rocket;
+extern crate core;
 
+use crate::repositories::dataset_repository::DatasetRepository;
 use crate::services::image_classifier::ImageClassifier;
 use crate::services::manager::Manager;
 
 mod entities;
 mod errors;
+mod repositories;
 mod routes;
 mod services;
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
     let image_classifier = ImageClassifier::new();
-    let manager = Manager::new(image_classifier.clone());
+    let dataset_db = DatasetRepository::new();
+    let manager = Manager::new(image_classifier.clone(), dataset_db.clone());
 
     let _ = rocket::build()
         .manage(image_classifier)
