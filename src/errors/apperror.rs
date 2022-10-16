@@ -2,7 +2,7 @@ use std::error::Error;
 use std::fmt::{format, Debug, Display};
 
 pub trait AppError: Display + Debug {
-    fn source(&self) -> Option<&(dyn AppError + 'static)>;
+    fn source(&self) -> Option<&(dyn AppError)>;
     fn description(&self) -> String;
 
     fn get_error_msg(&self) -> String;
@@ -22,7 +22,7 @@ pub trait AppError: Display + Debug {
     }
 }
 
-pub fn inner_stacktrace_processing(error: Option<&(dyn AppError + 'static)>, buffer: &mut String) {
+pub fn inner_stacktrace_processing(error: Option<&(dyn AppError)>, buffer: &mut String) {
     if let Some(inner_error) = error {
         inner_stacktrace_processing(inner_error.source(), buffer);
         buffer.push_str(&*inner_error.get_error_msg());

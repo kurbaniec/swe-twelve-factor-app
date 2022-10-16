@@ -1,3 +1,5 @@
+use crate::entities::datasets::DatasetInfo;
+use crate::errors::serviceerror::ServiceError;
 use crate::repositories::dataset_repository::DatasetRepositoryArc;
 use crate::services::image_classifier::{ImageClassifier, ImageClassifierArc};
 use std::sync::Arc;
@@ -20,7 +22,9 @@ impl Manager {
         })
     }
 
-    pub fn test(&self) {
-        println!("Hey!")
+    pub fn datasets(&self) -> Result<Vec<DatasetInfo>, ServiceError> {
+        self.db
+            .datasets()
+            .map_err(|e| ServiceError::crud_failed("Could not query datasets", e))
     }
 }

@@ -15,7 +15,7 @@ pub async fn index(
     println!("{}", test);
     // "Hello, world!"
     let test2 = "Some text";
-    Err(RouteError::new(Status::Forbidden, "Hey".to_string()))
+    Err(RouteError::new(Status::Forbidden, "Hey"))
 }
 
 #[post("/isdog", data = "<upload>")]

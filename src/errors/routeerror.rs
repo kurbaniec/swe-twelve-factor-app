@@ -14,28 +14,28 @@ pub struct RouteError {
 }
 
 impl RouteError {
-    pub fn new(status: Status, description: String) -> Self {
+    pub fn new(status: Status, description: &str) -> Self {
         RouteError {
             status,
-            description,
+            description: description.to_string(),
             source: None,
         }
     }
 
-    pub fn new_with_source<S>(status: Status, description: String, source: S) -> Self
+    pub fn source<S>(status: Status, description: &str, source: S) -> Self
     where
         S: Into<Box<dyn AppError>>,
     {
         RouteError {
             status,
-            description,
+            description: description.to_string(),
             source: Some(source.into()),
         }
     }
 }
 
 impl AppError for RouteError {
-    fn source(&self) -> Option<&(dyn AppError + 'static)> {
+    fn source(&self) -> Option<&(dyn AppError)> {
         // See: https://stackoverflow.com/a/65659930/12347616
         if let Some(source) = &self.source {
             Some(&**source)
