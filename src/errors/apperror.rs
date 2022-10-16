@@ -1,4 +1,5 @@
-use std::fmt::{Debug, Display};
+use std::error::Error;
+use std::fmt::{format, Debug, Display};
 
 pub trait AppError: Display + Debug {
     fn source(&self) -> Option<&(dyn AppError + 'static)>;

@@ -1,5 +1,10 @@
-use diesel::r2d2::{ConnectionManager, Pool};
-use diesel::{r2d2, Connection, PgConnection};
+use self::super::schema::datasets::dsl::{created_on, data, datasets, id, in_use};
+use crate::entities::datasets::DatasetInfo;
+use crate::errors::dberror::DbError;
+use crate::errors::dberror::DbErrorKind::{Connection, ReadFailed};
+use diesel::prelude::*;
+use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
+use diesel::{r2d2, PgConnection};
 use std::env;
 use std::sync::Arc;
 
@@ -20,5 +25,21 @@ impl DatasetRepository {
         // let conn = PgConnection::establish(&database_url)
         //     .unwrap_or_else(|_| panic!("Error connecting to {}", database_url));
         Arc::from(DatasetRepository { pool })
+    }
+
+    //noinspection RsUnresolvedReference
+    pub fn datasets(&self) -> Result<Vec<DatasetInfo>, DbError> {
+        let mut conn = self.connection()?;
+        datasets
+            .select((id, in_use, created_on))
+            .load::<DatasetInfo>(&mut conn)
+            .map_err(|e| DbError::source(ReadFailed, "No connection", e))
+    }
+
+    // fn connection(&self) -> Result<impl Connection, r2d2::PoolError> {
+    fn connection(&self) -> Result<PooledConnection<ConnectionManager<PgConnection>>, DbError> {
+        self.pool
+            .get()
+            .map_err(|e| DbError::source(Connection, "No connection", e))
     }
 }
