@@ -1,8 +1,8 @@
 use crate::errors::app_error::AppError;
 use crate::errors::db_error::DbError;
-use crate::errors::route_error::RouteError;
+
 use std::fmt;
-use std::fmt::{Debug, Display, Formatter};
+use std::fmt::{Debug, Formatter};
 
 #[derive(Debug)]
 #[allow(dead_code)]

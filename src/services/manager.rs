@@ -1,8 +1,8 @@
 use crate::entities::datasets::DatasetInfo;
 use crate::errors::service_error::ServiceError;
-use crate::services::traits::{Classify, Manage};
+use crate::services::traits::{Manage};
 use crate::states::app_state::{DatasetRepoPtr, ImageClassifierPtr};
-use std::sync::Arc;
+
 
 pub struct Manager {
     ic: ImageClassifierPtr,

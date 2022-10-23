@@ -1,5 +1,5 @@
 use crate::services::traits::Classify;
-use std::sync::Arc;
+
 
 pub struct ImageClassifier {}
 

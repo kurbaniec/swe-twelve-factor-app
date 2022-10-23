@@ -1,13 +1,13 @@
-use crate::entities::datasets::DatasetInfo;
+use crate::entities::datasets::{DatasetInfo, DatasetUpload};
 use crate::errors::app_error::AppError;
 use crate::errors::route_error::RouteError;
-use crate::errors::service_error::ServiceError;
+use rocket::form::Form;
+
 use crate::repositories::traits::DatasetRepository;
-use crate::services::traits::Classify;
-use crate::states::app_state::{ManagerPtr, ManagerState};
+
+use crate::states::app_state::ManagerState;
 use rocket::http::Status;
 use rocket::serde::json::Json;
-use rocket::State;
 
 #[get("/datasets")]
 pub async fn datasets(manager: &ManagerState) -> Result<Json<Vec<DatasetInfo>>, RouteError> {
@@ -19,4 +19,14 @@ pub async fn datasets(manager: &ManagerState) -> Result<Json<Vec<DatasetInfo>>, 
             e,
         )
     })
+}
+
+#[post("/dataset", data = "<upload>")]
+pub async fn add_dataset(
+    upload: Form<DatasetUpload<'_>>,
+    manager: &ManagerState,
+) -> Result<String, RouteError> {
+    println!("{:?}", upload.in_use);
+
+    Ok(String::from("hey"))
 }

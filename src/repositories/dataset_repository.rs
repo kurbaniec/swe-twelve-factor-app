@@ -1,4 +1,4 @@
-use self::super::schema::datasets::dsl::{created_on, data, datasets, id, in_use};
+use self::super::schema::datasets::dsl::{created_on, datasets, id, in_use};
 use crate::entities::datasets::DatasetInfo;
 use crate::errors::db_error::DbError;
 use crate::errors::db_error::DbErrorKind::{Connection, ReadFailed};
@@ -9,7 +9,7 @@ use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
 use diesel::{r2d2, PgConnection};
 use std::env;
 use std::error::Error;
-use std::sync::Arc;
+
 
 pub struct PostgresDatasetRepository {
     pool: Pool<ConnectionManager<PgConnection>>,

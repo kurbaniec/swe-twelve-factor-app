@@ -2,7 +2,7 @@ use crate::repositories::traits::DatasetRepository;
 use crate::services::traits::{Classify, Manage};
 use crate::{ImageClassifier, Manager, PostgresDatasetRepository};
 use rocket::State;
-use std::error::Error;
+
 use std::sync::Arc;
 
 pub type ImageClassifierPtr = Arc<dyn Classify + Send + Sync>;

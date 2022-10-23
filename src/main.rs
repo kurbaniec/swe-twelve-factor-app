@@ -6,12 +6,6 @@ use crate::repositories::dataset_repository::PostgresDatasetRepository;
 use crate::services::image_classifier::ImageClassifier;
 use crate::services::manager::Manager;
 use crate::states::app_state::AppState;
-use image::imageops::FilterType;
-use image::GenericImageView;
-use std::borrow::Borrow;
-use std::env::current_exe;
-use tensorflow::{Graph, SavedModelBundle, SessionOptions};
-use tensorflow::{SessionRunArgs, Tensor};
 
 mod entities;
 mod errors;
@@ -31,7 +25,11 @@ async fn main() -> Result<(), rocket::Error> {
         .manage(manager)
         .mount(
             "/",
-            routes![routes::service::index, routes::management::datasets],
+            routes![
+                routes::service::index,
+                routes::management::datasets,
+                routes::management::add_dataset
+            ],
         )
         .launch()
         .await?;

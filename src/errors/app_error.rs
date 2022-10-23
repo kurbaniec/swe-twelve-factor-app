@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::fmt::{format, Debug, Display};
+use std::fmt::{Debug, Display};
 
 pub trait AppError: Display + Debug {
     fn source(&self) -> Option<&(dyn AppError)>;
