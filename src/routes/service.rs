@@ -1,5 +1,5 @@
 use crate::entities::picture_upload::PictureUpload;
-use crate::errors::routeerror::RouteError;
+use crate::errors::route_error::RouteError;
 use crate::services::image_classifier::ImageClassifierArc;
 use crate::services::manager::ManagerArc;
 use rocket::form::Form;

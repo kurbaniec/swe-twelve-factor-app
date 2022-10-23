@@ -1,7 +1,7 @@
 use crate::entities::datasets::DatasetInfo;
-use crate::errors::apperror::AppError;
-use crate::errors::routeerror::RouteError;
-use crate::errors::serviceerror::ServiceError;
+use crate::errors::app_error::AppError;
+use crate::errors::route_error::RouteError;
+use crate::errors::service_error::ServiceError;
 use crate::services::image_classifier::ImageClassifierArc;
 use crate::services::manager::ManagerArc;
 use rocket::http::Status;

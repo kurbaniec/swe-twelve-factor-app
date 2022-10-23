@@ -1,4 +1,4 @@
-use crate::errors::apperror::AppError;
+use crate::errors::app_error::AppError;
 use diesel::serialize::IsNull::No;
 use rocket::http::{ContentType, Status};
 use rocket::response::Responder;
@@ -17,13 +17,13 @@ pub enum DbErrorKind {
     UpdateFailed,
     DeleteFailed,
     TransactionFailed,
-    Connection
+    Connection,
 }
 
 pub struct DbError {
     kind: DbErrorKind,
     description: String,
-    source: Option<Box<dyn Error + Send + Sync>>,
+    source: Option<Box<dyn AppError>>,
 }
 
 impl DbError {
@@ -35,9 +35,9 @@ impl DbError {
         }
     }
 
-    pub fn source<E>(kind: DbErrorKind, description: &str, source: E) -> Self
+    pub fn source<S>(kind: DbErrorKind, description: &str, source: S) -> Self
     where
-        E: Into<Box<dyn Error + Send + Sync>>,
+        S: Into<Box<dyn AppError>>,
     {
         DbError {
             kind,
@@ -48,8 +48,12 @@ impl DbError {
 }
 
 impl AppError for DbError {
-    fn source(&self) -> Option<&(dyn AppError + 'static)> {
-        None
+    fn source(&self) -> Option<&(dyn AppError)> {
+        if let Some(source) = &self.source {
+            Some(&**source)
+        } else {
+            None
+        }
     }
 
     fn description(&self) -> String {
@@ -57,17 +61,7 @@ impl AppError for DbError {
     }
 
     fn get_error_msg(&self) -> String {
-        let mut error_msg = if let Some(source) = &self.source {
-            String::from(format!("Error: {:?}", source.to_string()))
-        } else {
-            String::from("")
-        };
-        error_msg.push_str(&format!(
-            "DbError-{:?}: {:?}",
-            self.kind,
-            self.description()
-        ));
-        error_msg
+        format!("DbError-{:?}: {:?}", self.kind, self.description())
     }
 }
 

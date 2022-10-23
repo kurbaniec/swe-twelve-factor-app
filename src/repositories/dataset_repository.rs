@@ -1,11 +1,13 @@
 use self::super::schema::datasets::dsl::{created_on, data, datasets, id, in_use};
 use crate::entities::datasets::DatasetInfo;
-use crate::errors::dberror::DbError;
-use crate::errors::dberror::DbErrorKind::{Connection, ReadFailed};
+use crate::errors::db_error::DbError;
+use crate::errors::db_error::DbErrorKind::{Connection, ReadFailed};
+use crate::errors::std_error::StdError;
 use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
 use diesel::{r2d2, PgConnection};
 use std::env;
+use std::error::Error;
 use std::sync::Arc;
 
 pub struct DatasetRepository {
@@ -33,6 +35,7 @@ impl DatasetRepository {
         datasets
             .select((id, in_use, created_on))
             .load::<DatasetInfo>(&mut conn)
+            .map_err(|e| StdError::from(e))
             .map_err(|e| DbError::source(ReadFailed, "No connection", e))
     }
 
@@ -40,6 +43,7 @@ impl DatasetRepository {
     fn connection(&self) -> Result<PooledConnection<ConnectionManager<PgConnection>>, DbError> {
         self.pool
             .get()
+            .map_err(|e| StdError::from(e))
             .map_err(|e| DbError::source(Connection, "No connection", e))
     }
 }

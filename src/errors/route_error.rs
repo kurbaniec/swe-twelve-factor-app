@@ -1,4 +1,4 @@
-use crate::errors::apperror::AppError;
+use crate::errors::app_error::AppError;
 use rocket::http::{ContentType, Status};
 use rocket::response::Responder;
 use rocket::{Request, Response};

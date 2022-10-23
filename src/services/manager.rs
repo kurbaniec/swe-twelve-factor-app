@@ -1,5 +1,5 @@
 use crate::entities::datasets::DatasetInfo;
-use crate::errors::serviceerror::ServiceError;
+use crate::errors::service_error::ServiceError;
 use crate::repositories::dataset_repository::DatasetRepositoryArc;
 use crate::services::image_classifier::{ImageClassifier, ImageClassifierArc};
 use std::sync::Arc;
