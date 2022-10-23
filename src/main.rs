@@ -2,9 +2,10 @@
 extern crate rocket;
 extern crate core;
 
-use crate::repositories::dataset_repository::DatasetRepository;
+use crate::repositories::dataset_repository::PostgresDatasetRepository;
 use crate::services::image_classifier::ImageClassifier;
 use crate::services::manager::Manager;
+use crate::states::app_state::AppState;
 use image::imageops::FilterType;
 use image::GenericImageView;
 use std::borrow::Borrow;
@@ -17,12 +18,13 @@ mod errors;
 mod repositories;
 mod routes;
 mod services;
+mod states;
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
-    let image_classifier = ImageClassifier::new();
-    let dataset_db = DatasetRepository::new();
-    let manager = Manager::new(image_classifier.clone(), dataset_db.clone());
+    let app_state = AppState::new();
+    let image_classifier = app_state.get_image_classifier();
+    let manager = app_state.get_manager();
 
     let _ = rocket::build()
         .manage(image_classifier)

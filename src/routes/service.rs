@@ -1,16 +1,16 @@
 use crate::entities::picture_upload::PictureUpload;
 use crate::errors::route_error::RouteError;
-use crate::services::image_classifier::ImageClassifierArc;
-use crate::services::manager::ManagerArc;
+use crate::repositories::traits::DatasetRepository;
+use crate::services::traits::Classify;
+use crate::states::app_state::{
+    ImageClassifierPtr, ImageClassifierState, ManagerPtr, ManagerState,
+};
 use rocket::form::Form;
 use rocket::http::Status;
 use rocket::State;
 
 #[get("/")]
-pub async fn index(
-    a: &State<ImageClassifierArc>,
-    b: &State<ManagerArc>,
-) -> Result<&'static str, RouteError> {
+pub async fn index(a: &ImageClassifierState, b: &ManagerState) -> Result<&'static str, RouteError> {
     let test = "Some text";
     println!("{}", test);
     // "Hello, world!"
