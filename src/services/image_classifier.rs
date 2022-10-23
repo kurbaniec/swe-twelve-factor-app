@@ -1,5 +1,6 @@
+use crate::errors::service_error::ServiceError;
 use crate::services::traits::Classify;
-
+use std::path::Path;
 
 pub struct ImageClassifier {}
 
@@ -7,12 +8,16 @@ impl ImageClassifier {
     pub fn new() -> Self {
         ImageClassifier {}
     }
-
-    pub fn test(&self) {
-        println!("Hey!")
-    }
 }
 
-impl Classify for ImageClassifier {}
-unsafe impl Send for ImageClassifier {}
-unsafe impl Sync for ImageClassifier {}
+impl Classify for ImageClassifier {
+    fn valid_dataset(&self, dataset: &Path) -> Result<(), ServiceError> {
+        println!("TODO Implement");
+        Ok(())
+    }
+
+    fn load_dataset(&self, dataset: &Path) -> Result<(), ServiceError> {
+        println!("TODO Implement");
+        Ok(())
+    }
+}

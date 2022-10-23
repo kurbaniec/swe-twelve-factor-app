@@ -1,6 +1,7 @@
 use crate::errors::app_error::AppError;
 use crate::errors::db_error::DbError;
 
+use rocket::data::N;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 
@@ -8,6 +9,7 @@ use std::fmt::{Debug, Formatter};
 #[allow(dead_code)]
 pub enum ServiceErrorKind {
     CrudFailed,
+    DatasetFailure,
 }
 
 pub struct ServiceError {
@@ -17,12 +19,31 @@ pub struct ServiceError {
 }
 
 impl ServiceError {
-    pub fn crud_failed<E>(description: &str, source: E) -> Self
+    pub fn crud_failed_src<E>(description: &str, source: E) -> Self
     where
         E: Into<Box<DbError>>,
     {
         ServiceError {
             kind: ServiceErrorKind::CrudFailed,
+            description: description.to_string(),
+            source: Some(source.into()),
+        }
+    }
+
+    pub fn dataset_failure(description: &str) -> Self {
+        ServiceError {
+            kind: ServiceErrorKind::DatasetFailure,
+            description: description.to_string(),
+            source: None,
+        }
+    }
+
+    pub fn dataset_failure_src<E>(description: &str, source: E) -> Self
+    where
+        E: Into<Box<dyn AppError>>,
+    {
+        ServiceError {
+            kind: ServiceErrorKind::DatasetFailure,
             description: description.to_string(),
             source: Some(source.into()),
         }

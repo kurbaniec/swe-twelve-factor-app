@@ -13,6 +13,7 @@ mod repositories;
 mod routes;
 mod services;
 mod states;
+mod utils;
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {

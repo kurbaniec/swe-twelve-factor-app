@@ -2,6 +2,7 @@ use crate::errors::app_error::AppError;
 use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
+use zip::result::ZipError;
 
 pub struct StdError {
     source: Box<dyn Error + Send + Sync>,
@@ -60,6 +61,22 @@ impl From<r2d2::Error> for StdError {
 
 impl From<diesel::result::Error> for StdError {
     fn from(err: diesel::result::Error) -> Self {
+        StdError {
+            source: Box::new(err),
+        }
+    }
+}
+
+impl From<std::io::Error> for StdError {
+    fn from(err: std::io::Error) -> Self {
+        StdError {
+            source: Box::new(err),
+        }
+    }
+}
+
+impl From<ZipError> for StdError {
+    fn from(err: ZipError) -> Self {
         StdError {
             source: Box::new(err),
         }

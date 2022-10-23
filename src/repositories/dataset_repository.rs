@@ -40,10 +40,9 @@ impl PostgresDatasetRepository {
 impl DatasetRepository for PostgresDatasetRepository {
     //noinspection RsUnresolvedReference
     fn datasets(&self) -> Result<Vec<DatasetInfo>, DbError> {
-        let mut conn = self.connection()?;
         datasets
             .select((id, in_use, created_on))
-            .load::<DatasetInfo>(&mut conn)
+            .load::<DatasetInfo>(&mut self.connection()?)
             .map_err(|e| StdError::from(e))
             .map_err(|e| DbError::source(ReadFailed, "No connection", e))
     }

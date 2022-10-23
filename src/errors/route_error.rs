@@ -32,6 +32,14 @@ impl RouteError {
             source: Some(source.into()),
         }
     }
+
+    pub fn bad_request(description: &str) -> Self {
+        RouteError {
+            status: Status::BadRequest,
+            description: description.to_string(),
+            source: None,
+        }
+    }
 }
 
 impl AppError for RouteError {

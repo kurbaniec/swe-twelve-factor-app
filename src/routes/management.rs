@@ -2,11 +2,12 @@ use crate::entities::datasets::{DatasetInfo, DatasetUpload};
 use crate::errors::app_error::AppError;
 use crate::errors::route_error::RouteError;
 use rocket::form::Form;
+use std::fmt::format;
 
 use crate::repositories::traits::DatasetRepository;
 
 use crate::states::app_state::ManagerState;
-use rocket::http::Status;
+use rocket::http::{ContentType, Status};
 use rocket::serde::json::Json;
 
 #[get("/datasets")]
@@ -25,8 +26,27 @@ pub async fn datasets(manager: &ManagerState) -> Result<Json<Vec<DatasetInfo>>, 
 pub async fn add_dataset(
     upload: Form<DatasetUpload<'_>>,
     manager: &ManagerState,
-) -> Result<String, RouteError> {
-    println!("{:?}", upload.in_use);
+) -> Result<Json<DatasetInfo>, RouteError> {
+    // Check if data is a .zip
+    if let Some(ct) = upload.data.content_type() {
+        if *ct != ContentType::ZIP {
+            return Err(RouteError::bad_request(&format!(
+                "Datasets must be zipped, .{} is not supported",
+                ct.extension()
+                    .map(|c| c.to_string())
+                    .unwrap_or(ct.to_string())
+            )));
+        }
+    } else {
+        return Err(RouteError::bad_request("Could not determine content type"));
+    }
 
-    Ok(String::from("hey"))
+    manager.add_dataset(upload).map(|it| Json(it)).map_err(|e| {
+        e.print_stacktrace();
+        RouteError::source(
+            Status::InternalServerError,
+            "Could not add dataset, please try again later",
+            e,
+        )
+    })
 }
