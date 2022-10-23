@@ -10,7 +10,6 @@ use diesel::{r2d2, PgConnection};
 use std::env;
 use std::error::Error;
 
-
 pub struct PostgresDatasetRepository {
     pool: Pool<ConnectionManager<PgConnection>>,
 }
@@ -32,7 +31,7 @@ impl PostgresDatasetRepository {
     fn connection(&self) -> Result<PooledConnection<ConnectionManager<PgConnection>>, DbError> {
         self.pool
             .get()
-            .map_err(|e| StdError::from(e))
+            .map_err(StdError::from)
             .map_err(|e| DbError::source(Connection, "No connection", e))
     }
 }
@@ -43,7 +42,7 @@ impl DatasetRepository for PostgresDatasetRepository {
         datasets
             .select((id, in_use, created_on))
             .load::<DatasetInfo>(&mut self.connection()?)
-            .map_err(|e| StdError::from(e))
+            .map_err(StdError::from)
             .map_err(|e| DbError::source(ReadFailed, "No connection", e))
     }
 }

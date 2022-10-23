@@ -12,7 +12,7 @@ use rocket::serde::json::Json;
 
 #[get("/datasets")]
 pub async fn datasets(manager: &ManagerState) -> Result<Json<Vec<DatasetInfo>>, RouteError> {
-    manager.datasets().map(|it| Json(it)).map_err(|e| {
+    manager.datasets().map(Json).map_err(|e| {
         e.print_stacktrace();
         RouteError::source(
             Status::InternalServerError,
@@ -34,14 +34,14 @@ pub async fn add_dataset(
                 "Datasets must be zipped, .{} is not supported",
                 ct.extension()
                     .map(|c| c.to_string())
-                    .unwrap_or(ct.to_string())
+                    .unwrap_or_else(|| ct.to_string())
             )));
         }
     } else {
         return Err(RouteError::bad_request("Could not determine content type"));
     }
 
-    manager.add_dataset(upload).map(|it| Json(it)).map_err(|e| {
+    manager.add_dataset(upload).map(Json).map_err(|e| {
         e.print_stacktrace();
         RouteError::source(
             Status::InternalServerError,

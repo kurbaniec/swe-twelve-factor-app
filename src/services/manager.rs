@@ -1,4 +1,5 @@
 use crate::entities::datasets::{DatasetInfo, DatasetUpload};
+use crate::errors::app_error::AppError;
 use crate::errors::service_error::ServiceError;
 use crate::errors::std_error::StdError;
 use crate::services::traits::Manage;
@@ -30,33 +31,43 @@ impl Manage for Manager {
     }
 
     fn add_dataset(&self, upload: Form<DatasetUpload<'_>>) -> Result<DatasetInfo, ServiceError> {
-        let path = upload
+        let archive_path = upload
             .data
             .path()
             .ok_or_else(|| ServiceError::dataset_failure("Could not find uploaded dataset"))?;
 
-        let file = fs::File::open(path)
-            .map_err(|e| StdError::from(e))
+        let archive_file = fs::File::open(archive_path)
+            .map_err(StdError::from)
             .map_err(|e| ServiceError::dataset_failure_src("Could not find datasets file", e))?;
 
-        let mut archive = zip::ZipArchive::new(file)
-            .map_err(|e| StdError::from(e))
+        let mut archive = zip::ZipArchive::new(archive_file)
+            .map_err(StdError::from)
             .map_err(|e| ServiceError::dataset_failure_src("Could not find dataset archive", e))?;
 
-        let target_path = path
+        let target_base_path = archive_path
             .parent()
             .map(|it| it.join(Uuid::new_v4().to_string()))
-            .map(|it| it.join("dataset"))
             .ok_or_else(|| ServiceError::dataset_failure("Could not create dataset directory"))?;
+        let target_path = target_base_path.join("dataset");
+
         fs::create_dir_all(&target_path)
-            .map_err(|e| StdError::from(e))
+            .map_err(StdError::from)
             .map_err(|e| ServiceError::dataset_failure_src("Could not find dataset archive", e))?;
 
-        println!("Target path: {:?}", &target_path);
         unzip(&mut archive, &target_path)
             .map_err(|e| ServiceError::dataset_failure_src("Could not unzip dataset", e))?;
 
-        // TODO clean target path
+        println!("{:?}", &target_path);
+
+        self.ic.valid_dataset(&target_path)?;
+
+        fs::remove_dir_all(target_base_path)
+            .map_err(StdError::from)
+            .unwrap_or_else(|e| {
+                e.print_stacktrace();
+            });
+
+        // TODO: Save file in repo
         todo!()
     }
 }
