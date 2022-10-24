@@ -13,9 +13,9 @@ pub struct DatasetUpload<'r> {
 #[derive(Deserialize, Insertable)]
 #[diesel(table_name = datasets)]
 pub struct DatasetInsert {
-    in_use: bool,
-    data: Vec<u8>,
-    created_on: chrono::NaiveDateTime,
+    pub in_use: bool,
+    pub data: Vec<u8>,
+    pub created_on: chrono::NaiveDateTime,
 }
 
 impl DatasetInsert {

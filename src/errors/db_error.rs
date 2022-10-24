@@ -1,23 +1,21 @@
 use crate::errors::app_error::AppError;
 
-
-
-
-
+use crate::errors::std_error::StdError;
 use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
-
 
 #[derive(Debug)]
 #[allow(dead_code)]
 pub enum DbErrorKind {
     NotFound,
+    CreateFailed,
     ReadFailed,
     UpdateFailed,
     DeleteFailed,
     TransactionFailed,
     Connection,
+    Diesel,
 }
 
 pub struct DbError {
@@ -74,5 +72,21 @@ impl fmt::Display for DbError {
 impl fmt::Debug for DbError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.get_stacktrace())
+    }
+}
+
+impl From<diesel::result::Error> for DbError {
+    fn from(err: diesel::result::Error) -> Self {
+        DbError {
+            kind: DbErrorKind::Diesel,
+            description: err.to_string(),
+            source: Some(Box::from(StdError::from(err))),
+        }
+    }
+}
+
+impl From<DbError> for Box<dyn AppError> {
+    fn from(err: DbError) -> Self {
+        Box::new(err)
     }
 }

@@ -1,4 +1,4 @@
-use crate::entities::datasets::{DatasetInfo, DatasetUpload};
+use crate::entities::datasets::{DatasetInfo, DatasetInsert, DatasetUpload};
 use crate::errors::app_error::AppError;
 use crate::errors::service_error::ServiceError;
 use crate::errors::std_error::StdError;
@@ -67,7 +67,9 @@ impl Manage for Manager {
                 e.print_stacktrace();
             });
 
-        // TODO: Save file in repo
-        todo!()
+        let insert = DatasetInsert::from(upload.into_inner());
+        self.db
+            .add_dataset(&insert)
+            .map_err(|e| ServiceError::dataset_failure_src("Could not store dataset", e))
     }
 }
