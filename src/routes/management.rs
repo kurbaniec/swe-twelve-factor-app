@@ -1,6 +1,7 @@
 use crate::entities::datasets::{DatasetInfo, DatasetUpload};
 use crate::errors::app_error::AppError;
 use crate::errors::route_error::RouteError;
+use crate::errors::service_error::ServiceErrorKind::IllegalArgument;
 use crate::errors::std_error::StdError;
 use crate::states::app_state::ManagerState;
 use rocket::form::Form;
@@ -84,5 +85,23 @@ pub async fn add_dataset(
                 "Could not add dataset, please try again later",
                 e,
             )
+        })
+}
+
+#[post("/dataset/latest/<id>")]
+pub async fn set_in_use_dataset(id: i32, manager: &ManagerState) -> Result<Status, RouteError> {
+    manager
+        .set_in_use_dataset(id)
+        .map(|_| Status::Created)
+        .map_err(|e| {
+            e.print_stacktrace();
+            match e.kind {
+                IllegalArgument => RouteError::source(Status::BadRequest, "No such dataset", e),
+                _ => RouteError::source(
+                    Status::InternalServerError,
+                    "Could not set latest dataset, please try again later",
+                    e,
+                ),
+            }
         })
 }

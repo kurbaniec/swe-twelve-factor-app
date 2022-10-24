@@ -5,15 +5,15 @@ use rocket::data::N;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 
-#[derive(Debug)]
-#[allow(dead_code)]
+#[derive(Debug, Copy, Clone)]
 pub enum ServiceErrorKind {
     CrudFailed,
     DatasetFailure,
+    IllegalArgument,
 }
 
 pub struct ServiceError {
-    kind: ServiceErrorKind,
+    pub kind: ServiceErrorKind,
     description: String,
     source: Option<Box<dyn AppError>>,
 }
@@ -48,6 +48,25 @@ impl ServiceError {
             source: Some(source.into()),
         }
     }
+
+    pub fn illegal_argument(description: &str) -> Self {
+        ServiceError {
+            kind: ServiceErrorKind::IllegalArgument,
+            description: description.to_string(),
+            source: None,
+        }
+    }
+
+    pub fn illegal_argument_src<E>(description: &str, source: E) -> Self
+    where
+        E: Into<Box<dyn AppError>>,
+    {
+        ServiceError {
+            kind: ServiceErrorKind::IllegalArgument,
+            description: description.to_string(),
+            source: Some(source.into()),
+        }
+    }
 }
 
 impl AppError for ServiceError {
@@ -65,7 +84,7 @@ impl AppError for ServiceError {
     }
 
     fn get_error_msg(&self) -> String {
-        format!("RouteError-{:?}: {:?}", self.kind, self.description())
+        format!("ServiceError-{:?}: {:?}", self.kind, self.description())
     }
 }
 

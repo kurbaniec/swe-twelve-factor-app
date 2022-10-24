@@ -19,7 +19,7 @@ pub enum DbErrorKind {
 }
 
 pub struct DbError {
-    kind: DbErrorKind,
+    pub kind: DbErrorKind,
     description: String,
     source: Option<Box<dyn AppError>>,
 }

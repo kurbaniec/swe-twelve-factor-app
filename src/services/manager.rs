@@ -11,6 +11,8 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 use uuid::Uuid;
+use crate::errors::db_error::DbErrorKind;
+use crate::errors::db_error::DbErrorKind::ReadFailed;
 
 pub struct Manager {
     ic: ImageClassifierPtr,
@@ -98,7 +100,13 @@ impl Manage for Manager {
     fn set_in_use_dataset(&self, id: i32) -> Result<(), ServiceError> {
         self.db
             .set_in_use_dataset(id)
-            .map_err(|e| ServiceError::crud_failed_src("Could not update dataset", e))
+            .map_err(|e| {
+                match e.kind {
+                    ReadFailed => ServiceError::illegal_argument_src("No such dataset", e),
+                    _ => ServiceError::crud_failed_src("Could not update dataset", e)
+                }
+
+            })
     }
 
     fn delete_datasets(&self) -> Result<(), ServiceError> {
