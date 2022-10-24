@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::fmt::{Debug, Display};
 
 pub trait AppError: Display + Debug {

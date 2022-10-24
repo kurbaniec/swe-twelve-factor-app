@@ -14,6 +14,7 @@ pub struct RouteError {
 }
 
 impl RouteError {
+    #[allow(dead_code)]
     pub fn new(status: Status, description: &str) -> Self {
         RouteError {
             status,

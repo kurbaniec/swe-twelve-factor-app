@@ -1,7 +1,5 @@
 use crate::errors::app_error::AppError;
 use crate::errors::db_error::DbError;
-
-use rocket::data::N;
 use std::fmt;
 use std::fmt::{Debug, Formatter};
 

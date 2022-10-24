@@ -13,7 +13,6 @@ use diesel::prelude::*;
 use diesel::r2d2::{ConnectionManager, Pool, PooledConnection};
 use diesel::{delete, insert_into, r2d2, update, Connection, PgConnection};
 use std::env;
-use std::error::Error;
 
 pub struct PostgresDatasetRepository {
     pool: Pool<ConnectionManager<PgConnection>>,
@@ -77,7 +76,7 @@ impl PostgresDatasetRepository {
     fn update_in_use(&self, id: i32, in_use: bool, conn: &mut DbConnection) -> Result<(), DbError> {
         update(dsl_datasets)
             .filter(dsl_id.eq(id))
-            .set(dsl_in_use.eq(true))
+            .set(dsl_in_use.eq(in_use))
             .execute(conn)
             .map(|_| ())
             .map_err(StdError::from)

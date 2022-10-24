@@ -1,7 +1,6 @@
 use crate::entities::datasets::{DatasetInfo, DatasetUpload};
 use crate::errors::app_error::AppError;
 use crate::errors::route_error::RouteError;
-use crate::errors::service_error::ServiceErrorKind;
 use crate::errors::service_error::ServiceErrorKind::IllegalArgument;
 use crate::errors::std_error::StdError;
 use crate::states::app_state::ManagerState;

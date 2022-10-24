@@ -2,7 +2,7 @@ use crate::entities::image::{ImageClassification, ImageUpload};
 use crate::errors::app_error::AppError;
 use crate::errors::route_error::RouteError;
 use crate::errors::service_error::ServiceErrorKind;
-use crate::states::app_state::{ImageClassifierState, ManagerState};
+use crate::states::app_state::{ImageClassifierState};
 use rocket::form::Form;
 use rocket::http::Status;
 use rocket::serde::json::Json;

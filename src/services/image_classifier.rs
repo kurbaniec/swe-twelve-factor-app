@@ -9,7 +9,7 @@ use rocket::fs::TempFile;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::RwLock;
-use tensorflow::{Graph, SavedModelBundle, Session, SessionOptions, SessionRunArgs, Tensor};
+use tensorflow::{Graph, SavedModelBundle, SessionOptions, SessionRunArgs, Tensor};
 use uuid::Uuid;
 
 const IMAGE_WIDTH: u64 = 150;

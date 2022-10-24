@@ -1,14 +1,11 @@
 use crate::entities::datasets::{DatasetInfo, DatasetInsert, DatasetUpload};
 use crate::errors::app_error::AppError;
-use crate::errors::db_error::DbErrorKind;
 use crate::errors::db_error::DbErrorKind::ReadFailed;
 use crate::errors::service_error::ServiceError;
 use crate::errors::std_error::StdError;
 use crate::services::traits::Manage;
 use crate::states::app_state::{DatasetRepoPtr, ImageClassifierPtr};
 use crate::utils::zip::unzip;
-use rocket::form::Form;
-use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::{env, fs};

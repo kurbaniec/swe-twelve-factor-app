@@ -1,7 +1,6 @@
 use crate::errors::app_error::AppError;
 
 use crate::errors::std_error::StdError;
-use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
 

@@ -12,6 +12,7 @@ pub type ManagerPtr = Arc<dyn Manage + Send + Sync>;
 pub type ImageClassifierState = State<ImageClassifierPtr>;
 pub type ManagerState = State<ManagerPtr>;
 
+#[allow(dead_code)]
 pub struct AppState {
     ic: ImageClassifierPtr,
     db: DatasetRepoPtr,
@@ -30,6 +31,7 @@ impl AppState {
         self.ic.clone()
     }
 
+    #[allow(dead_code)]
     pub fn get_dataset_repository(&self) -> DatasetRepoPtr {
         self.db.clone()
     }
