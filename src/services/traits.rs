@@ -1,7 +1,7 @@
 use crate::entities::datasets::{DatasetInfo, DatasetUpload};
 use crate::errors::service_error::ServiceError;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 pub trait Classify {
     fn valid_dataset(&self, dataset: &Path) -> Result<(), ServiceError>;
@@ -10,7 +10,7 @@ pub trait Classify {
 
 pub trait Manage {
     fn datasets(&self) -> Result<Vec<DatasetInfo>, ServiceError>;
-    fn dataset_data(&self, id: i32) -> Result<&Path, ServiceError>;
+    fn dataset_data(&self, id: i32) -> Result<PathBuf, ServiceError>;
     fn add_dataset(&self, upload: DatasetUpload<'_>) -> Result<DatasetInfo, ServiceError>;
     fn set_in_use_dataset(&self, id: i32) -> Result<(), ServiceError>;
     fn delete_datasets(&self) -> Result<(), ServiceError>;

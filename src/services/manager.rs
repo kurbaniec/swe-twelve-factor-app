@@ -6,8 +6,10 @@ use crate::services::traits::Manage;
 use crate::states::app_state::{DatasetRepoPtr, ImageClassifierPtr};
 use crate::utils::zip::unzip;
 use rocket::form::Form;
-use std::fs;
-use std::path::Path;
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::path::{Path, PathBuf};
+use std::{env, fs};
 use uuid::Uuid;
 
 pub struct Manager {
@@ -31,8 +33,25 @@ impl Manage for Manager {
             .map_err(|e| ServiceError::crud_failed_src("Could not query datasets", e))
     }
 
-    fn dataset_data(&self, id: i32) -> Result<&Path, ServiceError> {
-        todo!()
+    fn dataset_data(&self, id: i32) -> Result<PathBuf, ServiceError> {
+        let data = self
+            .db
+            .dataset_data(id)
+            .map_err(|e| ServiceError::crud_failed_src("Could not query dataset data", e))?;
+
+        let base_path = env::temp_dir().join(Uuid::new_v4().to_string());
+        let path = base_path.join(format!("dataset-{}.zip", id));
+        fs::create_dir_all(base_path)
+            .map_err(StdError::from)
+            .map_err(|e| ServiceError::dataset_failure_src("Could not create dataset path", e))?;
+        println!("path {:?}", &path);
+        let mut file = fs::File::create(&path)
+            .map_err(StdError::from)
+            .map_err(|e| ServiceError::dataset_failure_src("Could not find dataset path", e))?;
+        file.write_all(&data)
+            .map_err(StdError::from)
+            .map_err(|e| ServiceError::dataset_failure_src("Could not store dataset", e))?;
+        Ok(path)
     }
 
     fn add_dataset(&self, upload: DatasetUpload<'_>) -> Result<DatasetInfo, ServiceError> {
@@ -62,8 +81,6 @@ impl Manage for Manager {
         unzip(&mut archive, &target_path)
             .map_err(|e| ServiceError::dataset_failure_src("Could not unzip dataset", e))?;
 
-        println!("{:?}", &target_path);
-
         self.ic.valid_dataset(&target_path)?;
 
         fs::remove_dir_all(target_base_path)
@@ -75,18 +92,24 @@ impl Manage for Manager {
         let insert = DatasetInsert::from(upload);
         self.db
             .add_dataset(&insert)
-            .map_err(|e| ServiceError::dataset_failure_src("Could not store dataset", e))
+            .map_err(|e| ServiceError::crud_failed_src("Could not store dataset", e))
     }
 
     fn set_in_use_dataset(&self, id: i32) -> Result<(), ServiceError> {
-        todo!()
+        self.db
+            .set_in_use_dataset(id)
+            .map_err(|e| ServiceError::crud_failed_src("Could not update dataset", e))
     }
 
     fn delete_datasets(&self) -> Result<(), ServiceError> {
-        todo!()
+        self.db
+            .delete_datasets()
+            .map_err(|e| ServiceError::crud_failed_src("Could not delete datasets", e))
     }
 
     fn delete_dataset(&self, id: i32) -> Result<(), ServiceError> {
-        todo!()
+        self.db
+            .delete_dataset(id)
+            .map_err(|e| ServiceError::crud_failed_src("Could not delete datasets", e))
     }
 }

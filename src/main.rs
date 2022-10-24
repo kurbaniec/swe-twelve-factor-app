@@ -29,6 +29,7 @@ async fn main() -> Result<(), rocket::Error> {
             routes![
                 routes::service::index,
                 routes::management::datasets,
+                routes::management::dataset_data,
                 routes::management::add_dataset
             ],
         )
