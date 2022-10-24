@@ -41,12 +41,15 @@ pub async fn add_dataset(
         return Err(RouteError::bad_request("Could not determine content type"));
     }
 
-    manager.add_dataset(upload).map(Json).map_err(|e| {
-        e.print_stacktrace();
-        RouteError::source(
-            Status::InternalServerError,
-            "Could not add dataset, please try again later",
-            e,
-        )
-    })
+    manager
+        .add_dataset(upload.into_inner())
+        .map(Json)
+        .map_err(|e| {
+            e.print_stacktrace();
+            RouteError::source(
+                Status::InternalServerError,
+                "Could not add dataset, please try again later",
+                e,
+            )
+        })
 }

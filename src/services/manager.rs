@@ -7,6 +7,7 @@ use crate::states::app_state::{DatasetRepoPtr, ImageClassifierPtr};
 use crate::utils::zip::unzip;
 use rocket::form::Form;
 use std::fs;
+use std::path::Path;
 use uuid::Uuid;
 
 pub struct Manager {
@@ -30,7 +31,11 @@ impl Manage for Manager {
             .map_err(|e| ServiceError::crud_failed_src("Could not query datasets", e))
     }
 
-    fn add_dataset(&self, upload: Form<DatasetUpload<'_>>) -> Result<DatasetInfo, ServiceError> {
+    fn dataset_data(&self, id: i32) -> Result<&Path, ServiceError> {
+        todo!()
+    }
+
+    fn add_dataset(&self, upload: DatasetUpload<'_>) -> Result<DatasetInfo, ServiceError> {
         let archive_path = upload
             .data
             .path()
@@ -67,9 +72,21 @@ impl Manage for Manager {
                 e.print_stacktrace();
             });
 
-        let insert = DatasetInsert::from(upload.into_inner());
+        let insert = DatasetInsert::from(upload);
         self.db
             .add_dataset(&insert)
             .map_err(|e| ServiceError::dataset_failure_src("Could not store dataset", e))
+    }
+
+    fn set_in_use_dataset(&self, id: i32) -> Result<(), ServiceError> {
+        todo!()
+    }
+
+    fn delete_datasets(&self) -> Result<(), ServiceError> {
+        todo!()
+    }
+
+    fn delete_dataset(&self, id: i32) -> Result<(), ServiceError> {
+        todo!()
     }
 }
