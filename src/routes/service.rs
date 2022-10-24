@@ -12,10 +12,6 @@ pub async fn dog_or_cat(
     upload: Form<ImageUpload<'_>>,
     ic: &ImageClassifierState,
 ) -> Result<Json<ImageClassification>, RouteError> {
-    println!("{:?}", upload.image.content_type());
-    println!("{:?}", upload.image.name());
-    println!("{:?}", upload.image.path());
-
     ic.classify_image(upload.into_inner())
         .map(Json)
         .map_err(|e| {

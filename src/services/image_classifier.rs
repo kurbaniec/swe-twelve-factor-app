@@ -46,7 +46,6 @@ impl Classify for ImageClassifier {
         let guard = self.tf.read().unwrap();
         if let Some(ref tf) = *guard {
             let image_path = persist_image(&image.image)?;
-            println!("image_path {:?}", &image_path);
             let input = image_to_tensor(&image_path)?;
             let _ = remove_image(&image_path);
             tf.classify_image(&input)
@@ -141,10 +140,6 @@ fn persist_image(tmp: &TempFile) -> Result<PathBuf, ServiceError> {
         .parent()
         .ok_or_else(|| ServiceError::image_prep_failed("Could not determine image"))?;
     let image_path = parent_path.join(format!("{}.{}", Uuid::new_v4(), extension));
-    println!("image_path {:?}", &image_path);
-    // fs::File::create(&image_path)
-    //     .map_err(StdError::from)
-    //     .map_err(|e| ServiceError::image_prep_failed_src("Could not create image file", e))?;
     fs::copy(&path, &image_path)
         .map_err(StdError::from)
         .map_err(|e| ServiceError::image_prep_failed_src("Could not copy image", e))?;
@@ -160,7 +155,6 @@ fn remove_image(path: &Path) -> Result<(), ServiceError> {
 }
 
 fn image_to_tensor(path: &Path) -> Result<Tensor<f32>, ServiceError> {
-    println!("test: {:?}", &path);
     let image = image::open(path).map_err(StdError::from).map_err(|e| {
         ServiceError::illegal_argument_src("Not a suitable image for classification", e)
     })?;
