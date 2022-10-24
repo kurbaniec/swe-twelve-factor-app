@@ -1,5 +1,7 @@
 use crate::entities::datasets::{DatasetInfo, DatasetInsert, DatasetUpload};
 use crate::errors::app_error::AppError;
+use crate::errors::db_error::DbErrorKind;
+use crate::errors::db_error::DbErrorKind::ReadFailed;
 use crate::errors::service_error::ServiceError;
 use crate::errors::std_error::StdError;
 use crate::services::traits::Manage;
@@ -11,8 +13,6 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::{env, fs};
 use uuid::Uuid;
-use crate::errors::db_error::DbErrorKind;
-use crate::errors::db_error::DbErrorKind::ReadFailed;
 
 pub struct Manager {
     ic: ImageClassifierPtr,
@@ -36,10 +36,10 @@ impl Manage for Manager {
     }
 
     fn dataset_data(&self, id: i32) -> Result<PathBuf, ServiceError> {
-        let data = self
-            .db
-            .dataset_data(id)
-            .map_err(|e| ServiceError::crud_failed_src("Could not query dataset data", e))?;
+        let data = self.db.dataset_data(id).map_err(|e| match e.kind {
+            ReadFailed => ServiceError::illegal_argument_src("No such dataset", e),
+            _ => ServiceError::crud_failed_src("Could not query dataset data", e),
+        })?;
 
         let base_path = env::temp_dir().join(Uuid::new_v4().to_string());
         let path = base_path.join(format!("dataset-{}.zip", id));
@@ -98,15 +98,10 @@ impl Manage for Manager {
     }
 
     fn set_in_use_dataset(&self, id: i32) -> Result<(), ServiceError> {
-        self.db
-            .set_in_use_dataset(id)
-            .map_err(|e| {
-                match e.kind {
-                    ReadFailed => ServiceError::illegal_argument_src("No such dataset", e),
-                    _ => ServiceError::crud_failed_src("Could not update dataset", e)
-                }
-
-            })
+        self.db.set_in_use_dataset(id).map_err(|e| match e.kind {
+            ReadFailed => ServiceError::illegal_argument_src("No such dataset", e),
+            _ => ServiceError::crud_failed_src("Could not update dataset", e),
+        })
     }
 
     fn delete_datasets(&self) -> Result<(), ServiceError> {

@@ -31,7 +31,9 @@ async fn main() -> Result<(), rocket::Error> {
                 routes::management::datasets,
                 routes::management::dataset_data,
                 routes::management::add_dataset,
-                routes::management::set_in_use_dataset
+                routes::management::set_in_use_dataset,
+                routes::management::delete_datasets,
+                routes::management::delete_dataset
             ],
         )
         .launch()

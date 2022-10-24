@@ -1,6 +1,7 @@
 use crate::entities::datasets::{DatasetInfo, DatasetUpload};
 use crate::errors::app_error::AppError;
 use crate::errors::route_error::RouteError;
+use crate::errors::service_error::ServiceErrorKind;
 use crate::errors::service_error::ServiceErrorKind::IllegalArgument;
 use crate::errors::std_error::StdError;
 use crate::states::app_state::ManagerState;
@@ -26,13 +27,17 @@ pub async fn datasets(manager: &ManagerState) -> Result<Json<Vec<DatasetInfo>>, 
 pub async fn dataset_data(id: i32, manager: &ManagerState) -> Result<NamedFile, RouteError> {
     let path = manager.dataset_data(id).map_err(|e| {
         e.print_stacktrace();
-        RouteError::source(
-            Status::InternalServerError,
-            "Could not fetch dataset data, please try again later",
-            e,
-        )
+        match e.kind {
+            IllegalArgument => RouteError::source(Status::BadRequest, "No such dataset", e),
+            _ => RouteError::source(
+                Status::InternalServerError,
+                "Could not fetch dataset data, please try again later",
+                e,
+            ),
+        }
     })?;
 
+    // See: https://github.com/SergioBenitez/Rocket/issues/610
     let nfile = NamedFile::open(&path)
         .await
         .map_err(StdError::from)
@@ -92,7 +97,7 @@ pub async fn add_dataset(
 pub async fn set_in_use_dataset(id: i32, manager: &ManagerState) -> Result<Status, RouteError> {
     manager
         .set_in_use_dataset(id)
-        .map(|_| Status::Created)
+        .map(|_| Status::Accepted)
         .map_err(|e| {
             e.print_stacktrace();
             match e.kind {
@@ -103,5 +108,35 @@ pub async fn set_in_use_dataset(id: i32, manager: &ManagerState) -> Result<Statu
                     e,
                 ),
             }
+        })
+}
+
+#[delete("/datasets")]
+pub async fn delete_datasets(manager: &ManagerState) -> Result<Status, RouteError> {
+    manager
+        .delete_datasets()
+        .map(|_| Status::Accepted)
+        .map_err(|e| {
+            e.print_stacktrace();
+            RouteError::source(
+                Status::InternalServerError,
+                "Could not delete datasets, please try again alter",
+                e,
+            )
+        })
+}
+
+#[delete("/dataset/<id>")]
+pub async fn delete_dataset(id: i32, manager: &ManagerState) -> Result<Status, RouteError> {
+    manager
+        .delete_dataset(id)
+        .map(|_| Status::Accepted)
+        .map_err(|e| {
+            e.print_stacktrace();
+            RouteError::source(
+                Status::InternalServerError,
+                "Could not delete dataset, please try again alter",
+                e,
+            )
         })
 }
