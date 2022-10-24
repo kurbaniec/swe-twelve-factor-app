@@ -1,13 +1,16 @@
 use crate::entities::image::{ImageClassification, ImageUpload};
+use crate::errors::app_error::AppError;
 use crate::errors::service_error::ServiceError;
 use crate::errors::std_error::StdError;
 use crate::services::traits::Classify;
 use image::imageops::FilterType;
 use image::GenericImageView;
+use rocket::fs::TempFile;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::RwLock;
 use tensorflow::{Graph, SavedModelBundle, Session, SessionOptions, SessionRunArgs, Tensor};
+use uuid::Uuid;
 
 const IMAGE_WIDTH: u64 = 150;
 const IMAGE_HEIGHT: u64 = 150;
@@ -42,11 +45,10 @@ impl Classify for ImageClassifier {
     fn classify_image(&self, image: ImageUpload) -> Result<ImageClassification, ServiceError> {
         let guard = self.tf.read().unwrap();
         if let Some(ref tf) = *guard {
-            let image_file = image.image;
-            let image_path = image_file
-                .path()
-                .ok_or_else(|| ServiceError::illegal_argument("Could not find image"))?;
-            let input = image_to_tensor(image_path)?;
+            let image_path = persist_image(&image.image)?;
+            println!("image_path {:?}", &image_path);
+            let input = image_to_tensor(&image_path)?;
+            let _ = remove_image(&image_path);
             tf.classify_image(&input)
         } else {
             Err(ServiceError::no_dataset("Dataset not loaded"))
@@ -123,6 +125,38 @@ impl TensorflowClassifier {
             Ok(ImageClassification::cat())
         }
     }
+}
+
+fn persist_image(tmp: &TempFile) -> Result<PathBuf, ServiceError> {
+    let content_type = tmp.content_type().ok_or_else(|| {
+        ServiceError::image_prep_failed("Not a suitable image for classification")
+    })?;
+    let extension = content_type.extension().ok_or_else(|| {
+        ServiceError::image_prep_failed("Not a suitable image for classification")
+    })?;
+    let path = tmp
+        .path()
+        .ok_or_else(|| ServiceError::image_prep_failed("Could not determine image"))?;
+    let parent_path = path
+        .parent()
+        .ok_or_else(|| ServiceError::image_prep_failed("Could not determine image"))?;
+    let image_path = parent_path.join(format!("{}.{}", Uuid::new_v4(), extension));
+    println!("image_path {:?}", &image_path);
+    // fs::File::create(&image_path)
+    //     .map_err(StdError::from)
+    //     .map_err(|e| ServiceError::image_prep_failed_src("Could not create image file", e))?;
+    fs::copy(&path, &image_path)
+        .map_err(StdError::from)
+        .map_err(|e| ServiceError::image_prep_failed_src("Could not copy image", e))?;
+    Ok(image_path)
+}
+
+fn remove_image(path: &Path) -> Result<(), ServiceError> {
+    fs::remove_file(&path).map_err(StdError::from).map_err(|e| {
+        println!("   >> Remove file {:?} manually", path);
+        e.print_stacktrace();
+        ServiceError::dataset_failure_src("Could not remove dataset", e)
+    })
 }
 
 fn image_to_tensor(path: &Path) -> Result<Tensor<f32>, ServiceError> {

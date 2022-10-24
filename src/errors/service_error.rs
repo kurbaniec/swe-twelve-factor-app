@@ -11,6 +11,7 @@ pub enum ServiceErrorKind {
     DatasetFailure,
     NoDataset,
     IllegalArgument,
+    ImagePrepFailed,
 }
 
 pub struct ServiceError {
@@ -74,6 +75,25 @@ impl ServiceError {
             kind: ServiceErrorKind::NoDataset,
             description: description.to_string(),
             source: None,
+        }
+    }
+
+    pub fn image_prep_failed(description: &str) -> Self {
+        ServiceError {
+            kind: ServiceErrorKind::ImagePrepFailed,
+            description: description.to_string(),
+            source: None,
+        }
+    }
+
+    pub fn image_prep_failed_src<E>(description: &str, source: E) -> Self
+    where
+        E: Into<Box<dyn AppError>>,
+    {
+        ServiceError {
+            kind: ServiceErrorKind::ImagePrepFailed,
+            description: description.to_string(),
+            source: Some(source.into()),
         }
     }
 }
