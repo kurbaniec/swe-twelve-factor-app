@@ -9,6 +9,7 @@ use std::fmt::{Debug, Formatter};
 pub enum ServiceErrorKind {
     CrudFailed,
     DatasetFailure,
+    NoDataset,
     IllegalArgument,
 }
 
@@ -65,6 +66,14 @@ impl ServiceError {
             kind: ServiceErrorKind::IllegalArgument,
             description: description.to_string(),
             source: Some(source.into()),
+        }
+    }
+
+    pub fn no_dataset(description: &str) -> Self {
+        ServiceError {
+            kind: ServiceErrorKind::NoDataset,
+            description: description.to_string(),
+            source: None,
         }
     }
 }

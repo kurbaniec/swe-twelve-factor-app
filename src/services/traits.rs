@@ -1,11 +1,13 @@
 use crate::entities::datasets::{DatasetInfo, DatasetUpload};
 use crate::errors::service_error::ServiceError;
 
+use crate::entities::image::{ImageClassification, ImageUpload};
 use std::path::{Path, PathBuf};
 
 pub trait Classify {
-    fn valid_dataset(&self, dataset: &Path) -> Result<(), ServiceError>;
     fn load_dataset(&self, dataset: &Path) -> Result<(), ServiceError>;
+    fn classify_image(&self, image: ImageUpload) -> Result<ImageClassification, ServiceError>;
+    fn validate_dataset(&self, dataset: &Path) -> Result<(), ServiceError>;
 }
 
 pub trait Manage {

@@ -2,6 +2,7 @@ use crate::errors::app_error::AppError;
 use std::error::Error;
 use std::fmt;
 use std::fmt::Formatter;
+use tensorflow::Status;
 use zip::result::ZipError;
 
 pub struct StdError {
@@ -77,6 +78,22 @@ impl From<std::io::Error> for StdError {
 
 impl From<ZipError> for StdError {
     fn from(err: ZipError) -> Self {
+        StdError {
+            source: Box::new(err),
+        }
+    }
+}
+
+impl From<tensorflow::Status> for StdError {
+    fn from(err: Status) -> Self {
+        StdError {
+            source: Box::new(err),
+        }
+    }
+}
+
+impl From<image::ImageError> for StdError {
+    fn from(err: image::ImageError) -> Self {
         StdError {
             source: Box::new(err),
         }

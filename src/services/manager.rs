@@ -83,7 +83,7 @@ impl Manage for Manager {
         unzip(&mut archive, &target_path)
             .map_err(|e| ServiceError::dataset_failure_src("Could not unzip dataset", e))?;
 
-        self.ic.valid_dataset(&target_path)?;
+        self.ic.validate_dataset(&target_path)?;
 
         fs::remove_dir_all(target_base_path)
             .map_err(StdError::from)
