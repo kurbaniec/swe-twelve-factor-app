@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(FromForm)]
 pub struct DatasetUpload<'r> {
+    #[field(name = "latest")]
     pub in_use: Option<bool>,
     pub data: TempFile<'r>,
 }
@@ -40,6 +41,7 @@ impl<'r> From<DatasetUpload<'r>> for DatasetInsert {
 #[derive(Queryable, Serialize)]
 pub struct DatasetInfo {
     pub id: i32,
+    #[serde(rename(serialize = "latest"))]
     pub in_use: bool,
     pub created_on: chrono::NaiveDateTime,
 }

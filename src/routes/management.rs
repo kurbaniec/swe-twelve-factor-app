@@ -1,17 +1,13 @@
 use crate::entities::datasets::{DatasetInfo, DatasetUpload};
 use crate::errors::app_error::AppError;
 use crate::errors::route_error::RouteError;
-use rocket::form::Form;
-use rocket::fs::NamedFile;
-use std::fmt::format;
-use std::fs;
-
-use crate::repositories::traits::DatasetRepository;
-
 use crate::errors::std_error::StdError;
 use crate::states::app_state::ManagerState;
+use rocket::form::Form;
+use rocket::fs::NamedFile;
 use rocket::http::{ContentType, Status};
 use rocket::serde::json::Json;
+use std::fs;
 
 #[get("/datasets")]
 pub async fn datasets(manager: &ManagerState) -> Result<Json<Vec<DatasetInfo>>, RouteError> {
