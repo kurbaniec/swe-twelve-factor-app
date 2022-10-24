@@ -1,25 +1,39 @@
-use crate::entities::image::ImageUpload;
+use crate::entities::image::{ImageClassification, ImageUpload};
+use crate::errors::app_error::AppError;
 use crate::errors::route_error::RouteError;
-
+use crate::errors::service_error::ServiceErrorKind;
 use crate::states::app_state::{ImageClassifierState, ManagerState};
 use rocket::form::Form;
 use rocket::http::Status;
+use rocket::serde::json::Json;
 
-#[get("/")]
-pub async fn index(
-    _a: &ImageClassifierState,
-    _b: &ManagerState,
-) -> Result<&'static str, RouteError> {
-    let test = "Some text";
-    println!("{}", test);
-    // "Hello, world!"
-    let _test2 = "Some text";
-    Err(RouteError::new(Status::Forbidden, "Hey"))
-}
+#[post("/dogorcat", data = "<upload>")]
+pub async fn dog_or_cat(
+    upload: Form<ImageUpload<'_>>,
+    ic: &ImageClassifierState,
+) -> Result<Json<ImageClassification>, RouteError> {
+    println!("{:?}", upload.image.content_type());
+    println!("{:?}", upload.image.name());
+    println!("{:?}", upload.image.path());
 
-#[post("/isdog", data = "<upload>")]
-pub async fn is_dog(upload: Form<ImageUpload<'_>>) -> Result<&'static str, RouteError> {
-    let test = &upload.image;
-    println!("{:?}", test);
-    Ok("File received")
+    ic.classify_image(upload.into_inner())
+        .map(Json)
+        .map_err(|e| {
+            e.print_stacktrace();
+            match e.kind {
+                ServiceErrorKind::NoDataset => RouteError::source(
+                    Status::BadRequest,
+                    "No dataset loaded, please load one and try again later",
+                    e,
+                ),
+                ServiceErrorKind::IllegalArgument => {
+                    RouteError::source(Status::BadRequest, &e.description(), e)
+                }
+                _ => RouteError::source(
+                    Status::InternalServerError,
+                    "Could not classify image, please try again later",
+                    e,
+                ),
+            }
+        })
 }

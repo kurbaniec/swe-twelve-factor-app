@@ -126,6 +126,7 @@ impl TensorflowClassifier {
 }
 
 fn image_to_tensor(path: &Path) -> Result<Tensor<f32>, ServiceError> {
+    println!("test: {:?}", &path);
     let image = image::open(path).map_err(StdError::from).map_err(|e| {
         ServiceError::illegal_argument_src("Not a suitable image for classification", e)
     })?;

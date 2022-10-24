@@ -27,7 +27,7 @@ async fn main() -> Result<(), rocket::Error> {
         .mount(
             "/",
             routes![
-                routes::service::index,
+                routes::service::dog_or_cat,
                 routes::management::datasets,
                 routes::management::dataset_data,
                 routes::management::add_dataset,
