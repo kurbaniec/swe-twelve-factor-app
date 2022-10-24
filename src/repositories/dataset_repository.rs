@@ -119,6 +119,15 @@ impl DatasetRepository for PostgresDatasetRepository {
             .map_err(|e| DbError::source(ReadFailed, "Dataset not found", e))
     }
 
+    fn dataset_latest_data(&self) -> Result<Vec<u8>, DbError> {
+        dsl_datasets
+            .filter(dsl_in_use.eq(true))
+            .select(dsl_data)
+            .get_result::<Vec<u8>>(&mut self.connection()?)
+            .map_err(StdError::from)
+            .map_err(|e| DbError::source(ReadFailed, "Dataset not found", e))
+    }
+
     fn add_dataset(&self, dataset: &DatasetInsert) -> Result<DatasetInfo, DbError> {
         let mut conn = self.connection()?;
         conn.transaction::<_, DbError, _>(|conn| {

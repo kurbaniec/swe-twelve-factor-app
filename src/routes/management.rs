@@ -111,6 +111,42 @@ pub async fn set_in_use_dataset(id: i32, manager: &ManagerState) -> Result<Statu
         })
 }
 
+#[put("/dataset/<id>")]
+pub async fn load_dataset(id: i32, manager: &ManagerState) -> Result<Status, RouteError> {
+    manager
+        .load_dataset(id)
+        .map(|_| Status::Accepted)
+        .map_err(|e| {
+            e.print_stacktrace();
+            match e.kind {
+                IllegalArgument => RouteError::source(Status::BadRequest, "No such dataset", e),
+                _ => RouteError::source(
+                    Status::InternalServerError,
+                    "Could not load dataset, please try again later",
+                    e,
+                ),
+            }
+        })
+}
+
+#[put("/dataset/latest")]
+pub async fn load_latest_dataset(manager: &ManagerState) -> Result<Status, RouteError> {
+    manager
+        .load_latest_dataset()
+        .map(|_| Status::Accepted)
+        .map_err(|e| {
+            e.print_stacktrace();
+            match e.kind {
+                IllegalArgument => RouteError::source(Status::BadRequest, "No such dataset", e),
+                _ => RouteError::source(
+                    Status::InternalServerError,
+                    "Could not load latest dataset, please try again later",
+                    e,
+                ),
+            }
+        })
+}
+
 #[delete("/datasets")]
 pub async fn delete_datasets(manager: &ManagerState) -> Result<Status, RouteError> {
     manager

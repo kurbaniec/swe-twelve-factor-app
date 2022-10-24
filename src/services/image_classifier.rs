@@ -4,7 +4,6 @@ use crate::errors::std_error::StdError;
 use crate::services::traits::Classify;
 use image::imageops::FilterType;
 use image::GenericImageView;
-use std::borrow::Borrow;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::RwLock;
@@ -194,7 +193,6 @@ fn dataset_directory_helper(path: &Path) -> Result<Option<PathBuf>, ServiceError
                     return Ok(result);
                 }
             } else if let Some(ext) = path.extension() {
-                println!("ext: {:?}", ext.to_str());
                 match ext.to_str() {
                     Some("pb") => return Ok(Some(PathBuf::from(path.parent().unwrap()))),
                     Some("pbtxt") => return Ok(Some(PathBuf::from(path.parent().unwrap()))),

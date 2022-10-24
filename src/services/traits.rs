@@ -15,6 +15,8 @@ pub trait Manage {
     fn dataset_data(&self, id: i32) -> Result<PathBuf, ServiceError>;
     fn add_dataset(&self, upload: DatasetUpload<'_>) -> Result<DatasetInfo, ServiceError>;
     fn set_in_use_dataset(&self, id: i32) -> Result<(), ServiceError>;
+    fn load_dataset(&self, id: i32) -> Result<(), ServiceError>;
+    fn load_latest_dataset(&self) -> Result<(), ServiceError>;
     fn delete_datasets(&self) -> Result<(), ServiceError>;
     fn delete_dataset(&self, id: i32) -> Result<(), ServiceError>;
 }
