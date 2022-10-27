@@ -42,6 +42,7 @@ impl Manage for Manager {
     }
 
     fn add_dataset(&self, upload: DatasetUpload<'_>) -> Result<DatasetInfo, ServiceError> {
+        // TODO load latest dataset
         let archive_path = upload
             .data
             .path()

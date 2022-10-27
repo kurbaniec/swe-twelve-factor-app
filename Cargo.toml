@@ -16,3 +16,7 @@ tensorflow = "0.19.1"
 image = "0.24.4"
 zip = "0.6.3"
 uuid = { version = "1.2.1", features = ["v4"] }
+
+[[bin]]
+name = "twelve-factor-app"
+path = "src/main.rs"
