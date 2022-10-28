@@ -2171,7 +2171,7 @@ checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 
 [[package]]
 name = "twelve-factor-app"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "chrono",
  "diesel",
