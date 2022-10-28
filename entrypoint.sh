@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 # Entrypoint for docker container execution
 # -----------------------------------------
