@@ -175,3 +175,8 @@ pub async fn delete_dataset(id: i32, manager: &ManagerState) -> Result<Status, R
             )
         })
 }
+
+#[get("/health")]
+pub async fn health() -> Status {
+    Status::Ok
+}

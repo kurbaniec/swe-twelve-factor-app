@@ -2,11 +2,11 @@
 extern crate rocket;
 extern crate core;
 
+use crate::errors::app_error::AppError;
 use crate::repositories::dataset_repository::PostgresDatasetRepository;
 use crate::services::image_classifier::ImageClassifier;
 use crate::services::manager::Manager;
 use crate::states::app_state::{AppState, ManagerPtr};
-use crate::errors::app_error::AppError;
 use crate::states::fairings::load_latest_dataset;
 
 mod entities;
@@ -37,7 +37,8 @@ async fn main() -> Result<(), rocket::Error> {
                 routes::management::load_dataset,
                 routes::management::load_latest_dataset,
                 routes::management::delete_datasets,
-                routes::management::delete_dataset
+                routes::management::delete_dataset,
+                routes::management::health
             ],
         )
         .attach(load_latest_dataset())
