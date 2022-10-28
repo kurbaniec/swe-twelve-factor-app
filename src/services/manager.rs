@@ -53,9 +53,15 @@ impl Manage for Manager {
 
         let _ = removed_unzipped_dataset(&dataset);
         let insert = DatasetInsert::from(upload);
-        self.db
+        let info = self
+            .db
             .add_dataset(&insert)
-            .map_err(|e| ServiceError::crud_failed_src("Could not store dataset", e))
+            .map_err(|e| ServiceError::crud_failed_src("Could not store dataset", e))?;
+
+        if insert.in_use {
+            self.load_dataset(info.id)?;
+        }
+        Ok(info)
     }
 
     fn set_in_use_dataset(&self, id: i32) -> Result<(), ServiceError> {

@@ -8,7 +8,9 @@ pub struct ImageUpload<'r> {
 
 #[derive(Serialize)]
 pub struct ImageClassification {
+    #[serde(rename(serialize = "isDog"))]
     pub is_dog: bool,
+    #[serde(rename(serialize = "isCat"))]
     pub is_cat: bool,
     pub emoji: String,
 }
