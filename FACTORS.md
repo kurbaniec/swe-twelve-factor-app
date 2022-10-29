@@ -2,6 +2,7 @@
   <p>Kacper Urbaniec | SWE | 28.10.2022</p>
   <h1><ins>Assignment 2: twelve-factor-app</ins></h1>
 </div>
+
 ## Implemented Factors
 
 ### Codebase
@@ -20,7 +21,7 @@ If it were a real production application, one could simply add further steps to 
 
 The project explicitly declares dependencies in two files:  [`Cargo.toml`](https://github.com/kurbaniec/swe-twelve-factor-app/blob/main/Cargo.toml) & [`Dockerfile`](https://github.com/kurbaniec/swe-twelve-factor-app/blob/main/Dockerfile).
 
- `Cargo.toml` is the Rust equivalent of `package.json` from `NPM`. It specifies all dependencies that the package manager `cargo` installs & manages for the Rust application.
+ `Cargo.toml` is the Rust equivalent of `package.json` from `NPM`. It specifies all dependencies that the package manager `cargo` installs & manages for the Rust application.
 
 Rust binaries rely on static linking meaning that the compiled binary contains all dependencies in the executable. However, some libraries used in the project break with this convention, as they rely on external dependencies that have to be additionally installed & linked during execution.
 
@@ -56,9 +57,33 @@ export ROCKET_LIMITS="${ROCKET_LIMITS:={form=100000000,forms=100000000,data-form
 
 > Treat backing services as attached resources
 
-The project uses only one backing service, a PostgreSQL database. The application uses the environment variable `DATABASE_URL` to read the URL of the database. Switching between databases in different deployments is quite simple: update the `DATABASE_URL` variable, create a new container and you are done. This way, one can use a PostgreSQL Docker container for development and a third-party managed container on a cloud service for production.
+The project uses only one backing service, a PostgreSQL database. The application uses the environment variable `DATABASE_URL` to read the URL of the database. Switching between databases in different deployments is quite simple: update the `DATABASE_URL` variable, create a new container and you are done. This way, one can use a PostgreSQL Docker container for development and a third-party managed container on a cloud service for production.
 
-### Build, relas
+### Build, release, run
+
+> Strictly separate build and run stages
+
+This is one of the principles that I have not fully implemented, as the [CI/CD pipeline](https://github.com/kurbaniec/swe-twelve-factor-app/blob/main/.github/workflows/main.yml) for the project really only consists of the build stage. 
+
+If it were a real production application, one would add a release & run stage to the pipeline. In the release stage, one or more containers would be build with environment variables for the target environment, e.g. production or staging. In the run stage, the built containers would be deployed to e.g. a cloud service provider for production or to an internal server for testing in staging.
+
+### Processes
+
+> Execute the app as one or more stateless processes
+
+The app when containerised, can be seen as a stateless process that provides a `dogorcat` image classification service. The underlying web framework uses multiple threads when more than one request is sent to the app, but it is essentially just a stateless process. Each uploaded Tensorflow model is stored in a PostgresSQL service shared by all containers. Therefore, the app container is stateless, only the backing service is stateful.
+
+
+
+
+
+
+
+
+
+but more importantly the app can be easily scaled horizontally as any data is persisted in the backing PostgresSQL service. 
+
+That means one can improve performance & latency when starting multiple `dogorcat` services behind a load balancer. When a new Tensorflow model is uploaded one can either send a request to all running containers to update their models or just create new containers as the latest Tensorflow model is automatically pulled on startup from the backing service.
 
 ## Acknowledgments
 
