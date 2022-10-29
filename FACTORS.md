@@ -73,17 +73,29 @@ If it were a real production application, one would add a release & run stage to
 
 The app when containerised, can be seen as a stateless process that provides a `dogorcat` image classification service. The underlying web framework uses multiple threads when more than one request is sent to the app, but it is essentially just a stateless process. Each uploaded Tensorflow model is stored in a PostgresSQL service shared by all containers. Therefore, the app container is stateless, only the backing service is stateful.
 
+### Port binding
+
+> Export services via port binding
+
+The application does not rely on the runtime injection of a web server. The web framework used by the app creates a web-based service that is mapped to port 8000 by default. So when creating a container, one can use `-p 8000:8000` to map the port 8000 of the container to port 8000 on the Docker host.
+
+The load balancing example in the [README](./README.md) uses a different approach with Docker networks. Instead of binding multiple app service containers to the host, the containers are created in a Docker network. The configured haproxy load balancer, running on the same Docker network, maps the containers internally across the network by name and provides a port 8000 that balances all requests to the registered containers.
+
+### Concurrency
+
+> Scale out via the process model
+
+This is in a sense a continuation of *Processes* & *Port Binding*. Each `dogorcat` service can be seen as a stateless worker process that can easily be scaled horizontally.
+
+This means that one can improve performance and latency by starting multiple `dogorcat` services behind a load balancer that represents a web process. If more requests than usual come in, one can simply put up more containers to meet the demand.
+
+At startup, all `dogorcat` services pull the latest Tensorflow model to use for image classification. Each service is independent and deterministic, which means that it makes no difference to the user on which service instance the image classification is performed, the result will be the same.  
+
+When a new Tensorflow model is uploaded to a `dogorcat` service instance, one can either send a request to all remaining running containers to update their models or simply create new containers, as the latest Tensorflow model is automatically pulled from the backing service at startup.
+
+### 
 
 
-
-
-
-
-
-
-but more importantly the app can be easily scaled horizontally as any data is persisted in the backing PostgresSQL service. 
-
-That means one can improve performance & latency when starting multiple `dogorcat` services behind a load balancer. When a new Tensorflow model is uploaded one can either send a request to all running containers to update their models or just create new containers as the latest Tensorflow model is automatically pulled on startup from the backing service.
 
 ## Acknowledgments
 
