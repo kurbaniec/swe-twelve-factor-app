@@ -180,7 +180,7 @@
 			"response": []
 		},
 		{
-			"name": "IS DOG?",
+			"name": "/dogorcat",
 			"request": {
 				"method": "POST",
 				"header": [],
@@ -188,41 +188,69 @@
 					"mode": "formdata",
 					"formdata": [
 						{
-							"key": "picture",
+							"key": "image",
 							"type": "file",
-							"src": "/C:/Arbeit/beeproduced/backend-spring/etc.postman/etc.postman.iml"
+							"src": "/C:/Users/kurbaniec/Downloads/dogs/1.jpg"
 						}
 					]
 				},
 				"url": {
-					"raw": "http://localhost:8000/isdog/",
+					"raw": "http://localhost:8000/dogorcat",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8000",
 					"path": [
-						"isdog",
-						""
+						"dogorcat"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "New Request",
+			"name": "/dogorcat",
 			"request": {
-				"method": "GET",
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "image",
+							"type": "file",
+							"src": "///wsl.localhost/Ubuntu/home/kurbaniec/Arbeit/SWE-MSC/twelve-factor-app/images/cat3.jpg"
+						}
+					]
+				},
 				"url": {
-					"raw": "http://localhost:8000/",
+					"raw": "http://localhost:8000/dogorcat",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8000",
 					"path": [
-						""
+						"dogorcat"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/health",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/health",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"health"
 					]
 				}
 			},
