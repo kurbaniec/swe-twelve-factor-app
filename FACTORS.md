@@ -93,7 +93,21 @@ At startup, all `dogorcat` services pull the latest Tensorflow model to use for 
 
 When a new Tensorflow model is uploaded to a `dogorcat` service instance, one can either send a request to all remaining running containers to update their models or simply create new containers, as the latest Tensorflow model is automatically pulled from the backing service at startup.
 
-### 
+### Disposability
+
+> Maximize robustness with fast startup and graceful shutdown
+
+Rust creates binaries that are native machine code and do not require a virtual machine or even garbage collection. This means that the start-up time is essentially zero. After the app is launched, it takes only a few seconds to load the latest Tensorflow model.
+
+As far as graceful shutdown is concerned, this aspect was quite easy to achieve, as the used web framework Rocket supports this by default. When a SIGTERM signal is received, the web framework stops listening for new requests and waits until the pending requests are finished. Then it exists automatically.
+
+![shutdown](.img/shutdown.png)
+
+However, this does not help if the machine on which the app is running suddenly fails because of a power failure or for other reasons. The data should still be consistent in such situations. Therefore, all CRUD operations that modify data are executed as transactions, so that a sudden power failure does not leave the data in an inconsistent state.
+
+### Dev/prod parity
+
+> Keep development, staging, and production as similar as possible
 
 
 
