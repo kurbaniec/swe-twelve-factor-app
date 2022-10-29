@@ -119,7 +119,30 @@ The Docker image for the application is also based on Debian (superset of Ubuntu
 
 > Treat logs as event streams
 
+This was probably the easiest factor, by default Rust and the web framework used and even external dependencies like Tensorflow just write everything to `stdout`.
 
+### Admin processes
+
+> Run admin/management tasks as one-off processes
+
+The app uses the ORM [Diesel](https://diesel.rs/guides/getting-started.html) as a migration tool and library within the app itself to perform CRUD operations. The migration tool is a separate binary outside the app called Diesel CLI, which can be called via `diesel`.
+
+Each `dogorcat` service container comes not only with application code, but also with admin code, as the factor describes. In the case of the `dogorcat` service, this is the Diesel CLI & the corresponding migration folder.
+
+If a container is built with the environment variable `-e RUN_MIGRATION=true`, the container will perform a non-destructive data migration at start-up (creating the required database tables if they do not already exist).  
+
+```bash
+if [ "$RUN_MIGRATION" = "true" ]
+then
+  echo "💾 Running Database Migration:"
+  diesel migration run
+  echo "   >> Migration successful"
+fi
+```
+
+After that, the application binary is executed, one can upload Tensorflow models and perform image classifications. In short, containers with `RUN_MIGRATION=true` can be used to configure the database and upload an initial Tensorflow model. 
+
+If one can be sure that the database is already configured, one can omit these admin/management tasks by not specifying the `RUN_MIGRATION` variable. However, if something goes wrong in production, one can use `ssh` or other remote command execution mechanisms to invoke the Diesel CLI manually, as each container has one.
 
 ## Acknowledgments
 
