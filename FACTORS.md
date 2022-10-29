@@ -13,7 +13,7 @@ The codebase and all related assets such as test scripts or the Dockerfile for c
 
 In terms of deploys, on the one hand there is the local development environment that I set up when I developed and tested the application. There is also an environment that mimics a production environment in a sense. When pushing on the `main` branch, a new Docker image is created and published to the GitHub container registry at https://github.com/kurbaniec/swe-twelve-factor-app/pkgs/container/dogorcat-service. 
 
-If it were a real production application, one could simply add further steps to the [CI/CD pipeline of the project](https://github.com/kurbaniec/swe-twelve-factor-app/blob/main/.github/workflows/main.yml), e.g. deploy the created Docker image to the cloud to make it available to users. Also adding more environments like Staging would make sense in real-word application development.
+If it were a real production application, one could simply add further steps to the [CI/CD pipeline of the project](https://github.com/kurbaniec/swe-twelve-factor-app/blob/main/.github/workflows/main.yml), e.g. deploy the created Docker image to the cloud to make it available to users. Also adding more environments like staging would make sense in real-word application development.
 
 ### Dependencies
 
@@ -29,19 +29,19 @@ Firstly, there is Tensorflow itself, where the Rust library is just a wrapper ar
 
 As we can see, `cargo` can manage most of the project's dependencies by explicitly declaring them, however these two outliers break the dependency principle of the twelve-factor app. This is where the Dockerfile comes in.
 
-In the Dockerfile, the external dependencies are explicitly declared, nothing needs to be configured, the image created takes care of everything. Also, when using Docker images, we can be sure that no implicit dependencies are leaked, so all our dependencies are properly isolated.
+In the Dockerfile, the external dependencies are explicitly declared, nothing needs to be configured, the build script takes care of everything. Also, when using Docker images, we can be sure that no implicit dependencies are leaked, so all our dependencies are properly isolated.
 
 ### Config
 
 > Store config in the environment
 
-The web framework used [Rocket](https://rocket.rs/v0.5-rc/guide/configuration/) & ORM [Diesel](https://diesel.rs/guides/getting-started.html) both rely on environment variables to configure them. Therefore it was quite easy to follow the config principle.
+The used web framework [Rocket](https://rocket.rs/v0.5-rc/guide/configuration/) & ORM [Diesel](https://diesel.rs/guides/getting-started.html) both rely on environment variables to configure them. Therefore it was quite easy to follow the config principle.
 
 For development, I conveniently set my environment variables in the IDE and changed it as needed to test different features.
 
 ![dev-env](.img/dev-env.png)
 
-When creating a container for the application, one can use the `-e` flag to specify environment variables to be used. For example, the `DATABASE_URL` might vary between deployments and is therefore a potential candidate for setting. One could also change the default settings for the Rocket web framework to change its behaviour for a deployment.
+When creating a container for the app, one can use the `-e` flag to specify environment variables to be used. For example, the `DATABASE_URL` might vary between deployments and is therefore a potential candidate for setting. One could also change the default settings for the Rocket web framework to change its behaviour for a deployment.
 
 One thing I added when creating the Docker container are [some environment variables](https://github.com/kurbaniec/swe-twelve-factor-app/blob/main/entrypoint.sh) that are set when no external variables are passed via `-e` during container creation.
 
@@ -57,7 +57,7 @@ export ROCKET_LIMITS="${ROCKET_LIMITS:={form=100000000,forms=100000000,data-form
 
 > Treat backing services as attached resources
 
-The project uses only one backing service, a PostgreSQL database. The application uses the environment variable `DATABASE_URL` to read the URL of the database. Switching between databases in different deployments is quite simple: update the `DATABASE_URL` variable, create a new container and you are done. This way, one can use a PostgreSQL Docker container for development and a third-party managed container on a cloud service for production.
+The project uses only one backing service, a PostgreSQL database. The app uses the environment variable `DATABASE_URL` to read the URL of the database. Switching between databases in different deployments is quite simple: update the `DATABASE_URL` variable, create a new container and you are done. This way, one can use a PostgreSQL Docker container for development and a third-party managed container on a cloud service for production.
 
 ### Build, release, run
 
