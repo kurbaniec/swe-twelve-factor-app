@@ -109,6 +109,16 @@ However, this does not help if the machine on which the app is running suddenly 
 
 > Keep development, staging, and production as similar as possible
 
+After adding a pipeline at the end of the project, it became quite easy and fast to create deployments, in the case of this project creating and publishing a Docker image. As this is an individual assignment, I am responsible for writing and deploying the application, so the personal gap is as small as possible.
+
+The difference in tools is more interesting. The idea is to keep development and production as similar as possible. My personal computer runs Windows, but I developed and tested the application using [WSL2](https://learn.microsoft.com/en-us/windows/wsl/about), a lightweight Linux virtual machine that I run Ubuntu on. I used CLion as the IDE for this project, which has great integrations with WSL2, so I can run the IDE natively while the code is built and run in the subsystem. 
+
+The Docker image for the application is also based on Debian (superset of Ubuntu) and the pipeline that creates and publishes the image also runs on Ubuntu. So essentially there are no technology differences between development and production. The database for testing in development and with the published Docker image was also a containerised PostgreSQL instance.
+
+### Logs
+
+> Treat logs as event streams
+
 
 
 ## Acknowledgments
